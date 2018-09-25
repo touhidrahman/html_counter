@@ -1,0 +1,18 @@
+{
+  "name": "html-counter",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon run.js file test"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "commander": "^2.18.0",
+    "cssbeautify": "^0.3.1",
+    "express": "~4.16.0",
+    "fs": "0.0.1-security",
+    "nodemon": "^1.18.4",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2"
+  }
+}

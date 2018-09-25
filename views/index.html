@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Testing Dom</title>
+    <link rel='stylesheet' href='/stylesheets/style.min.css' />
+  </head>
+  <body>
+    <div>
+      <h1>Testing Dom</h1>
+      <p>Welcome to Dom Testing</p>
+      <ul>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+      </ul>
+    </div>
+
+    <form action="/action_page.php" autocomplete="on">
+      First name:<input type="text" name="fname"><br>
+      Last name: <input type="text" name="lname"><br>
+      E-mail: <input type="email" name="email" autocomplete="off"><br>
+      <input type="submit">
+    </form>
+    
+    <p>Fill in and submit the form, then reload the page to see how autocomplete works.</p>
+    <p>Notice that autocomplete is "on" for the form, but "off" for the e-mail field.</p>
+  
+    <form action="/action_page.php">
+      Webpage: <input type="url" list="url_list" name="link">
+      <datalist id="url_list">
+        <option label="W3Schools" value="https://www.w3schools.com">
+        <option label="Google" value="http://www.google.com">
+        <option label="Microsoft" value="http://www.microsoft.com">
+      </datalist>
+      <input type="submit">
+    </form>
+  
+    <h1>Done!</h1>
+
+  </body>
+</html>
