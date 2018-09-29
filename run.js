@@ -83,8 +83,11 @@ function getCSS($) {
     for (let i = 0; i < links.length; i++) {
         link = links[i].attribs.href;
         // If href of <link> contains local file name
-        if ( link.includes("http") == false ) {
-                link = base_url+ "/" +link
+        if ( !link.includes("http") && !link.startsWith('//') ) {
+                link = base_url+ "/" + link
+        }
+        if ( !link.includes("http") && link.startsWith('//') ) {
+                link = "http:" + link
         }
         cssName.push(link);
         // Fetching css files and its results
