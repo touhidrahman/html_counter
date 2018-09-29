@@ -1,13 +1,12 @@
-var fs = require('fs');
-var rp = require('request-promise');
+const fs = require('fs');
+const rp = require('request-promise');
 const cheerio = require('cheerio');
 const cssbeautify = require('cssbeautify');
 
 // Save the url name from command
-var url = process.argv.slice(2)[0];
+const url = process.argv.slice(2)[0];
 
-
-var options = {
+const options = {
     uri: url,
     transform: function (body) {
         return cheerio.load(body);
@@ -15,32 +14,30 @@ var options = {
 };
 
 // Object for storing result
-var dom = {};
-var level = {};
-var level_c =[]
-var css = {};
-var css_c = [];
-var item;
+let dom = {};
+let level = {};
+let level_c =[];
+let css = {};
+let css_c = [];
+let item;
 
-console.log("Fetching HTML File...")
+console.log("Fetching HTML from " + url)
 rp(options)
     .then(function ($) {
         function addToDom(name) {
-            if (name in dom){
-                dom[name] = dom[name] + 1
-            } else {
-                dom[name] = 1
-            }
+            if (name in dom)
+                dom[name] = dom[name] + 1;
+            else
+                dom[name] = 1;
         }
 
         function addDepth(depth, count) {
             if (depth in level){
-                // update level if it is greater than previous depth
                 if (level[depth] < count) {
-                level[depth] = count
+                    level[depth] = count;
                 }
             } else {
-                level[depth] = count
+                level[depth] = count;
             }
         }
 
@@ -48,12 +45,12 @@ rp(options)
         let count = 0;
         for (let i = 0; i<child.length; i++) {
             if (child[i].type == 'tag') {
-            count++;
-            name = child[i].name
-            addToDom(name)
-            if (child[i].children.length > 1) {
-                let temp = parseInt(depth) + 1
-                traverseDOM(child[i].children, temp.toString())
+                count++;
+                name = child[i].name;
+                addToDom(name);
+                if (child[i].children.length > 1) {
+                    let temp = parseInt(depth) + 1
+                    traverseDOM(child[i].children, temp.toString())
                 }
             } else {
                 continue
@@ -65,34 +62,34 @@ rp(options)
         console.log("Parsing the DOM...")
         traverseDOM($('html').children(), "1");
 
-        // Calling method for css sylesheets
         getCSS($);
     })
     .catch(function (err) {
         // Crawling failed or Cheerio choked...
         if (err.name == "RequestError" )
-            console.log("Failed to fetch url!")
+            console.log("Failed to fetch url!");
         else 
-            console.log("Something went wrong!")
+            console.log("Something went wrong!");
     });
 
 
 function getCSS($) {
-    console.log("Successfully parsed the DOM.");
-    console.log("Fetching CSS Files...");
-    
+    console.log("Fetching CSS files...");
     let links = $('link[rel=stylesheet]');
     let href = [], link;
     let cssName = [];
-    
+    const base_url = url.match(/^https?:\/\/[^\/]+/i)[0];
+
     for (let i = 0; i < links.length; i++) {
         link = links[i].attribs.href;
         // If href of <link> contains local file name
-        if ( link.includes("http") == false ) {
-            link = url+ "/" +link
+        if ( !link.includes("http") && !link.startsWith('//') ) {
+                link = base_url+ "/" + link
+        }
+        if ( !link.includes("http") && link.startsWith('//') ) {
+                link = "http:" + link
         }
         cssName.push(link);
-        
         // Fetching css files and its results
         href.push( rp(link)
                 .catch( function (err) { 
@@ -103,7 +100,6 @@ function getCSS($) {
 
     // Using JavaScript Promise 
     // request fetches links asynchronously 
-    // Promise get all asychronous results and then proceeds to next
     Promise.all(href)
         .then(function (results) {
             let line;
@@ -127,6 +123,7 @@ function getCSS($) {
 
 
 function save() {
+    // Convert object to array of objects
     for (let key in level) {
         item = {"level": parseInt(key), "elements": level[key]}
         level_c.push(item)
@@ -135,16 +132,19 @@ function save() {
         item = {"source": key, "loc": css[key]}
         css_c.push(item)
     }
-    var json = {"dom": dom, "depth": level_c, "css": css_c};
+    let json = {"dom": dom, "depth": level_c, "css": css_c};
     
-    // get site name from url
     let siteName = url.replace('http://','').replace('https://','').replace('www.','').split(/[/?#]/)[0];
-
     let location = __dirname;
-    let location_save = location + "/output/" + siteName + ".json";
+    let location_save = location + "/output/" + siteName +".json";
     json = JSON.stringify(json);
     fs.writeFileSync(location_save, json, 'utf8');
     
-    console.log("Successfully parsed CSS files.")
-    console.log("Saved as " + siteName + ".json")
+    console.log("Result saved as " + siteName + ".json in 'output' folder.")
 }
+
+
+
+
+
+
